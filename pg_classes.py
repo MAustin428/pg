@@ -13,29 +13,29 @@ class City:
 		return self.connection
 
 class Player:
-	def __init__(name):
+	def __init__(self, name):
 		self.name = name
 		self.cash = 0
 		self.cities = []
 		self.plants = []
 
-	def set_cash(amount):
+	def set_cash(self, amount):
 		self.cash += amount
-	def set_cities(city_name):
+	def set_cities(self, city_name):
 		self.cities.add(city_name)
-	def set_plants(plant):
+	def set_plants(self, plant):
 		if len(self.plants) == 3:
 			self.plants[discard_plant()] = plant
 		else:
 			self.plants.add(plant)
 
-	def discard_plant():
+#	def discard_plant():
 #		prompt asking which plant the player wants to discard
 
-	def get_cash():
+	def get_cash(self):
 		return self.cash
-	def get_cities():
+	def get_cities(self):
 		return self.cities
-	def get_plants():
+	def get_plants(self):
 		return self.plants()
 

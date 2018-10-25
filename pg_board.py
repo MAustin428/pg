@@ -88,6 +88,11 @@ def test_plants():
 		assert len(x) == 4, 'Power plant lacking required information: %r' %x[0]
 	assert len(power_plants) == 42, 'Power plant missing from list'
 
+def get_cities():
+	return city_map
+
+def get_colors():
+	return color_map
 
 def print_cities():
 	for x in city_map:
