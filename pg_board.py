@@ -54,18 +54,21 @@ color_map = {
 			 'Green': ['Norfolk', 'Raleigh', 'Savannah', 'Atlanta', 'Jacksonville', 'Tampa', 'Miami']	
 			}
 
-power_plants = [(3, 'oil', 2, 1), (4, 'coal', 2, 1), (5, 'coal/oil', 2, 1), (6, 'garbage', 1, 1), (7, 'oil', 3, 2), (8, 'coal', 3, 2), (9, 'oil', 1, 1), 
-				(10, 'coal', 2, 2), (11, 'uranium', 1, 2), (12, 'coal/oil', 2, 2), (13, 'wind', 0, 1), (14, 'garbage', 2, 2), (15, 'coal', 2, 3), (16, 'oil', 2, 3), 
-				(17, 'uranium', 1, 2), (18, 'wind', 0, 2), (19, 'garbage', 2, 3), (20, 'coal', 3, 5), (21, 'coal/oil', 2, 4), (22, 'wind', 0, 2), (23, 'uranium', 1, 3), 
-				(24, 'garbage', 2, 4), (25, 'coal', 2, 5), (26, 'oil', 2, 5), (27, 'wind', 0, 3), (28, 'uranium', 1, 4), (29, 'coal/oil', 1, 4), (30, 'garbage', 3, 6), 
-				(31, 'coal', 3, 6), (32, 'oil', 3, 6), (33, 'wind', 0, 4), (34, 'uranium', 1, 5), (35, 'oil', 1, 5), (36, 'coal', 3, 7), (37, 'wind', 0, 4), (38, 'garbage', 3, 7), 
-				(39, 'uranium', 1, 6), (40, 'garbage', 2, 6), (42, 'coal', 2, 6), (44, 'wind', 0, 5), (46, 'coal/oil', 3, 7), (50, 'wind', 0, 6)]
+power_plants = {
+				3: ('oil', 2, 1), 4: ('coal', 2, 1), 5: ('coal/oil', 2, 1), 6: ('garbage', 1, 1), 7: ('oil', 3, 2), 8: ('coal', 3, 2), 
+				9: ('oil', 1, 1), 10: ('coal', 2, 2), 11: ('uranium', 1, 2), 12: ('coal/oil', 2, 2), 13: ('wind', 0, 1), 14: ('garbage', 2, 2), 
+				15: ('coal', 2, 3), 16: ('oil', 2, 3), 17: ('uranium', 1, 2), 18: ('wind', 0, 2), 19: ('garbage', 2, 3), 20: ('coal', 3, 5), 
+				21: ('coal/oil', 2, 4), 22: ('wind', 0, 2), 23: ('uranium', 1, 3), 24: ('garbage', 2, 4), 25: ('coal', 2, 5), 26: ('oil', 2, 5), 
+				27: ('wind', 0, 3), 28: ('uranium', 1, 4), 29: ('coal/oil', 1, 4), 30: ('garbage', 3, 6), 31: ('coal', 3, 6), 32: ('oil', 3, 6), 
+				33: ('wind', 0, 4), 34: ('uranium', 1, 5), 35: ('oil', 1, 5), 36: ('coal', 3, 7), 37: ('wind', 0, 4), 38: ('garbage', 3, 7), 
+				39: ('uranium', 1, 6), 40: ('garbage', 2, 6), 42: ('coal', 2, 6), 44: ('wind', 0, 5), 46: ('coal/oil', 3, 7), 50: ('wind', 0, 6)
+				}
 
-resources = {
-			 'coal': [0],
-			 'oil': [0],
-			 'garbage': [0],
-			 'uranium': [0]
+resource_map = {
+			 'coal': 0,
+			 'oil': 0,
+			 'garbage': 0,
+			 'uranium': 0
 			}
 
 
@@ -78,6 +81,7 @@ def test_nodes():
 #			print(x, ': ', y, '\n\t', y[0], ': ', y[1])
 		in_color = False
 		for color in color_map:
+			assert len(color_map[color]) == 7, 'Cities not zoned into colored regions correctly'
 			if x in color_map[color]:
 				assert in_color == False, 'Duplicate city %r' %x
 				in_color = True
@@ -85,15 +89,21 @@ def test_nodes():
 
 def test_plants():
 	for x in power_plants:
-		assert len(x) == 4, 'Power plant lacking required information: %r' %x[0]
+		assert len(power_plants[x]) == 3, 'Power plant lacking required information: %r' %x[0]
 	assert len(power_plants) == 42, 'Power plant missing from list'
 
 def get_cities():
 	return city_map
-
 def get_colors():
 	return color_map
+def get_resources():
+	return resource_map
+def get_plants():
+	return power_plants
 
+#
+# Demo functions -- to be deleted from final version
+#
 def print_cities():
 	for x in city_map:
 		print(x)
