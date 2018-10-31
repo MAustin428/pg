@@ -1,18 +1,7 @@
-class City:
-	def __init__(self, name, connections, color):
-		self.name = name
-		self.color = color
-		for cities in connections:
-			self.connection.add(cities)
-
-	def get_name():
-		return self.name
-	def get_color():
-		return self.color
-	def get_connections():
-		return self.connection
-
 class Player:
+	# When the game is started, the player class is instantiated with the player name
+	# and the game itself as parameters. The player has no cash, cities, plants, or
+	# resources until the game assigns them during the setup phase
 	def __init__(self, name, game):
 		self.name = name
 		self.game = game
@@ -21,6 +10,7 @@ class Player:
 		self.plants = []
 		self.resources = { 'coal': 0, 'oil': 0, 'garbage': 0, 'uranium': 0 }
 
+	# Setter methods to allow changing of the player's game data
 	def set_cash(self, amount):
 		self.cash += amount
 	def set_city(self, city_name):
@@ -36,6 +26,7 @@ class Player:
 #	def discard_plant():
 #		prompt asking which plant the player wants to discard
 
+	# Getter methods that allow other classes to view the player's game data
 	def get_name(self):
 		return self.name
 	def get_cash(self):
@@ -47,22 +38,25 @@ class Player:
 	def get_resources(self):
 		return self.resources
 
+	# Assigns the player's starting city. Only works if the player chooses an unowned
+	# city in the selected color zones, and the player doesn't already own a city
 	def starting_city(self, city):
-		if city not in self.game.get_available_list():
+		if city not in self.game.get_available_list() or self.get_cities():
 			print('Invalid')
 		else:
 			self.set_city(city)
 			self.game.set_owned(city)
 
-
+	# Allows the player to buy a city
 	def buy_city(self, city):
-		# Checks to see if city is available
+		# Checks to see if city is available. Exits the function gracefully if not
 		if city not in self.game.get_available_list():
 			print('Invalid')
 			return None
 		else:
-			# Calculates cheapest cost to connect
-			cost = self.game.calc_cost(self.cities[0], city)
+			# Calculates cheapest cost to connect the two cities
+			costs = [ self.game.calc_cost(x, city) for x in self.cities ]
+			cost = min(costs)
 
 		# Deduct the cost of the city from the players available cash
 		if self.cash < cost:
