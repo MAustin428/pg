@@ -43,9 +43,9 @@ class Player:
 	def get_cities(self):
 		return self.cities
 	def get_plants(self):
-		return self.plants()
+		return self.plants
 	def get_resources(self):
-		return self.resources()
+		return self.resources
 
 	def starting_city(self, city):
 		if city not in self.game.get_available_list():
@@ -59,15 +59,15 @@ class Player:
 		# Checks to see if city is available
 		if city not in self.game.get_available_list():
 			print('Invalid')
+			return None
 		else:
 			# Calculates cheapest cost to connect
-			cost = self.game.dij(self.cities[0], city)
+			cost = self.game.calc_cost(self.cities[0], city)
 
 		# Deduct the cost of the city from the players available cash
 		if self.cash < cost:
 			print('Invalid')
 		else:
-#			set_cash(-cost)
-			set_city(city)
+			self.set_cash(-cost)
+			self.set_city(city)
 			self.game.set_owned(city)
-			print(cost)

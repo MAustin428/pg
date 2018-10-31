@@ -2,6 +2,50 @@ import pg_classes as pgc
 import pg_board as board
 import random
 
+def dij(g):
+	class Node:
+		def __init__(self, neighbors):
+			self.dist = 0xffffffff
+			self.neighbors = neighbors
+
+		def set_prev(self, node):
+			self.prev = node
+		def set_dist(self, dist):
+			self.dist = dist
+
+		def get_prev(self):
+			return self.prev
+		def get_dist(self):
+			return self.dist
+		def get_neighbors(self):
+			return self.neighbors
+
+	path_list = {}
+	for key in g:
+		v = {}
+		uv = {}
+		d = 0
+		p = None 
+		for x in g.keys():
+			n = Node(g[x])
+			uv[x] = n
+			if x == key:
+				n.set_dist(0)
+
+		while uv:
+			act = min(uv, key=lambda x: uv[x].get_dist())
+			uv[act].set_prev(p)
+			v[act] = uv[act]
+			for y in uv[act].get_neighbors() :
+				if y not in v:
+					trial_dist = uv[act].get_dist() + uv[act].get_neighbors()[y]
+					if uv[y].get_dist() > trial_dist:
+						uv[y].set_dist(trial_dist)
+			p = uv.pop(act)
+		path_list[key] = v
+	return path_list
+
+				
 class Game:
 	def __init__(self, players, colors):
 
@@ -12,18 +56,25 @@ class Game:
 		def set_city_list(colors):
 			# Filters the color map down to only the colors that are active in this game
 			cincm = { color: cities for color, cities in board.get_colors().items() if color in colors }
-			# Creates a dictionary containing the city lists from the above color map values, and flattens it into a list of cities
+			# Creates a dictionary containing the city lists from the above colorfor x, y in path.items() if x in map values, and flattens it into a list of cities
 			ci_li = [ci for sublist in list(cincm.values()) for ci in sublist]
-			# Filters the city map down to only the cities that are in the active colored sections
-			ci_di = { c: path for c, path in board.get_cities().items() if c in  ci_li }
-			return ci_di
+			# Filters the city map keys and values down to only the cities that are in the active colored sections
+			d = board.get_cities().items()
+			e = []
+			for i in d:
+				j = i[1].items()
+				e.append((i[0], { x: y for x, y in j if x in ci_li }))
+			ci_li = { c: path for c, path in e if c in ci_li }
+			return ci_li
 
-		def set_owned_list(self):
+		def set_owned_list():
 			cl = self.city_list
 			ol = {}
 			for x in cl.keys():
 				ol[x] = 0
 			return ol
+
+
 
 		# Creates a new player, sets their starting cash to 50, and adds it to the player list
 		def set_players(players):
@@ -55,7 +106,8 @@ class Game:
 
 		self.players = set_players(players)
 		self.city_list = set_city_list(colors)
-		self.owned_list = set_owned_list(self)
+		self.cost_list = dij(self.city_list)
+		self.owned_list = set_owned_list()
 		self.resources = set_resources()
 		self.deck = set_deck()
 		self.plants = set_plants()
@@ -87,10 +139,15 @@ class Game:
 		el_cities = { c: k for c, k in self.get_owned_list().items() if  k < self.phase }
 		av_cities = { d: l for d, l in self.city_list.items() if d in el_cities.keys() }
 		return av_cities
-	
-	def dij(self, source, target):
-		s = self.get_city(source)
-		return s
+	def get_cost(self, source, target):
+		return self.cost_list[source][target].get_dist()
+
+	def calc_cost(self, source, target):
+		node_cost = 5 + 5 * self.get_phase()
+		edge_cost = self.get_cost(source, target)
+		assert self.get_cost(source, target) == self.get_cost(target, source)
+		c = node_cost + edge_cost
+		return c
 
 	def adjust_resource(self, res, amt):
 		self.resources[res] += amt
@@ -101,14 +158,13 @@ class Game:
 	def set_owned(self, city):
 		self.owned_list[city] += 1
 
-game1 = Game(['Mike', 'Tom', 'Steve'], ['Red', 'Green'])
-print(game1.get_cities())
-print(game1.get_deck())
-print(game1.get_market(), game1.get_futures())
+#game1 = Game(['Mike', 'Tom', 'Steve'], ['Red', 'Green'])
+#print(game1.get_cities())
 
-for i, x in enumerate(game1.get_players()):
-	ci_li = ['Tampa', 'Houston', 'Jacksonville']
-	ci_li2 = ['Miami', 'New Orleans', 'Birmingham']
-	x.starting_city(ci_li[i])
-	print(x.get_name())
-	x.buy_city(ci_li2[i])
+#for i, x in enumerate(game1.get_players()):
+#	ci_li = ['Tampa', 'Houston', 'Jacksonville']
+#	ci_li2 = ['Birmingham', 'New Orleans', 'Miami']
+#	print(x.get_name(), ': $', x.get_cash())
+#	x.starting_city(ci_li[i])
+#	x.buy_city(ci_li2[i])
+#	print(x.get_name(), ': $', x.get_cash())
