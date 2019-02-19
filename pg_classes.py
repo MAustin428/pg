@@ -16,15 +16,32 @@ class Player:
 	def set_city(self, city_name):
 		self.cities.append(city_name)
 	def set_plants(self, plant):
+
+		def order_plants(a_list):
+			ps = a_list
+			l = len(ps)
+			for i in range(l):
+				for j in range(i+1, l):
+					if ps[i] > ps[j]:
+						t = ps[i]
+						ps[i] = a_list[j]
+						ps[j] = t
+			return(ps)
+
+			
 		if len(self.plants) == 3:
-			self.plants[discard_plant()] = plant
+			# Discards the lowest-cost plantThis will eventually need 
+			# to be a prompt asking the player which plant dicard.
+			self.plants[0] = plant
 		else:
 			self.plants.append(plant)
+		self.plants = order_plants(self.plants)
+		for x in self.plants:
+			print(x)
+
 	def set_resources(self, res, amt):
 		self.resources[res] += amt
 
-#	def discard_plant():
-#		prompt asking which plant the player wants to discard
 
 	# Getter methods that allow other classes to view the player's game data
 	def get_name(self):
@@ -65,3 +82,4 @@ class Player:
 			self.set_cash(-cost)
 			self.set_city(city)
 			self.game.set_owned(city)
+

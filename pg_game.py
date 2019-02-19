@@ -146,6 +146,8 @@ class Game:
 		self.futures = [7, 8, 9, 10]			# Futures market at the game start
 		self.phase = 1							# Game starts at phase 1
 
+
+
 	# Getters that return game-wide attributes
 	def get_players(self):
 		return self.players
@@ -199,6 +201,69 @@ class Game:
 	# Updates the list of owned cities after somebody moves into a city
 	def set_owned(self, city):
 		self.owned_list[city] += 1
+
+
+	# Directs a round of gameplay
+	def play_round(self):
+
+		# Determine the player order for this round
+		def order_players(players):
+
+			def cmp_plant_cost(player_a, player_b):
+				a_len = len(player_a.get_plants())
+				b_len = len(player_b.get_plants())
+				if player_a.get_plants()[a_len-1] < player_b.get_plants()[b_len-1]:
+					return True
+				else:
+					return False
+
+			pl_u = players
+
+			for i in range(len(pl_u)):
+				for j in range(i+1, len(pl_u)):
+					if len(pl_u[j].get_cities()) > len(pl_u[i].get_cities()):
+						temp_p = pl_u[i]
+						pl_u[i] = pl_u[j]
+						pl_u[j] = temp_p
+					elif len(pl_u[i].get_cities()) == len(pl_u[j].get_cities()):
+						if cmp_plant_cost(pl_u[i], pl_u[j]):
+							temp_p = pl_u[i]
+							pl_u[i] = pl_u[j]
+							pl_u[j] = temp_p
+			return pl_u
+
+		# Allows players to bid on available power plants 
+		def auction_plants(plants, players):
+
+			# Asks the first player which plant they want to bid on, if any
+			def request_plant(plants, players_t):
+				plant_in_play = ''
+				print(plants, ' ')
+				while players_t:
+					plant_in_play = input('Choose a plant to bid on, or pass: ')
+					if plant_in_play not in plants:
+						pop(players_t[0])
+					else:
+						return plant_in_play
+				return 
+
+			def request_bids(plants, players_t):
+				pip = request_plant(plants, players_t)
+				players_double_t = players_t[:]
+				if pip:
+					while len(players_double_t) > 1 :
+						current_bid = pip-1
+						bid_t = input('Bid on the plant, or pass: ')
+						if bid_t > current_bid:
+							current_bid = bid_t
+							players_double_t.append(players_double_t.pop(0))
+						else:
+							pop(players_double_t[0])
+
+
+			player_t = players[:]
+			while len(players_t) > 1 :
+				request_bids(plants, players_t)
 
 game1 = Game(['Mike', 'Tom', 'Steve'], ['Red', 'Green'])
 print(game1.get_cities())
