@@ -209,9 +209,18 @@ class Game:
 		# Determine the player order for this round
 		def order_players(players):
 
+			# Compares two player's plant costs. The last plant in the array will be the most
+			# expensive, since the plant list is sorted after every plant purchase.
 			def cmp_plant_cost(player_a, player_b):
 				a_len = len(player_a.get_plants())
 				b_len = len(player_b.get_plants())
+				
+				
+				# During the initial round, when players have no plants, the player order is
+				# not adjusted. This prevents an underflow exception in the code block below
+				if a_len == 0 or b_len == 0:
+					return False
+
 				if player_a.get_plants()[a_len-1] < player_b.get_plants()[b_len-1]:
 					return True
 				else:
@@ -219,13 +228,16 @@ class Game:
 
 			pl_u = players
 
+			# Sorts players by number of cities owned, and then by most expensive plant cost.
+			# If players have no plants, which should only happen in the first round, the
+			# initial order is maintained.
 			for i in range(len(pl_u)):
 				for j in range(i+1, len(pl_u)):
 					if len(pl_u[j].get_cities()) > len(pl_u[i].get_cities()):
 						temp_p = pl_u[i]
 						pl_u[i] = pl_u[j]
 						pl_u[j] = temp_p
-					elif len(pl_u[i].get_cities()) == len(pl_u[j].get_cities()):
+					elif len(pl_u[j].get_cities()) == len(pl_u[i].get_cities()):
 						if cmp_plant_cost(pl_u[i], pl_u[j]):
 							temp_p = pl_u[i]
 							pl_u[i] = pl_u[j]
@@ -235,43 +247,55 @@ class Game:
 		# Allows players to bid on available power plants 
 		def auction_plants(plants, players):
 
-			# Asks the first player which plant they want to bid on, if any
-			def request_plant(plants, players_t):
+			# Starting with the first player, asks players which plant they want to bid on, if any
+			def request_plant(plants, player):
 				plant_in_play = ''
 				print(plants, ' ')
-				while players_t:
-					plant_in_play = input('Choose a plant to bid on, or pass: ')
+				
+				if len(player.get_plants()) == 0:
+					while plant_in_play not in plants:
+						plant_in_play = int(input('Choose a plant to bid on. You must bid on a plant: '))
+					return plant_in_play
+				else:
+					plant_in_play = int(input('Choose a plant to bid on, or pass: '))
 					if plant_in_play not in plants:
-						pop(players_t[0])
+						return None
 					else:
 						return plant_in_play
-				return 
 
+			# Requests bids on plants.
 			def request_bids(plants, players_t):
-				pip = request_plant(plants, players_t)
-				players_double_t = players_t[:]
-				if pip:
-					while len(players_double_t) > 1 :
-						current_bid = pip-1
-						bid_t = input('Bid on the plant, or pass: ')
-						if bid_t > current_bid:
-							current_bid = bid_t
-							players_double_t.append(players_double_t.pop(0))
-						else:
-							pop(players_double_t[0])
+				while players_t:
+					pip = request_plant(plants, players_t[0])
+					players_double_t = players_t[:]
+					if pip:
+						current_bid = pip
+						while len(players_double_t) > 1 :
+							print(players_double_t[0].get_name(), ', you\'re up. Current bid is ', current_bid)
+							bid_t = input('Bid on the plant, or pass: ')
+							if bid_t.isnumeric():
+								bid_t = int(bid_t)
+								if bid_t > current_bid:
+									current_bid = bid_t
+									players_double_t.append(players_double_t.pop(0))
+								else:
+									players_double_t.pop(0)
+							else:
+								players_double_t.pop(0)
+						players_t.remove(players_double_t[0])
+					else:
+						players_t.pop(0)
 
 
-			player_t = players[:]
+
+			players_t = players[:]
 			while len(players_t) > 1 :
 				request_bids(plants, players_t)
+		
+		players_list = order_players(self.players)
+		auction_plants(self.plants, players_list)
+
+
 
 game1 = Game(['Mike', 'Tom', 'Steve'], ['Red', 'Green'])
-print(game1.get_cities())
-
-for i, x in enumerate(game1.get_players()):
-	ci_li = ['Tampa', 'Houston', 'Jacksonville']
-	ci_li2 = ['Birmingham', 'New Orleans', 'Miami']
-	print(x.get_name(), ': $', x.get_cash())
-	x.starting_city(ci_li[i])
-	x.buy_city(ci_li2[i])
-	print(x.get_name(), ': $', x.get_cash())
+game1.play_round()
